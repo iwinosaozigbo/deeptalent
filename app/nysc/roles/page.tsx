@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { NyscShell } from "@/components/nysc/nysc-shell";
 import { NyscRolesView } from "@/components/nysc/nysc-roles-view";
+import { NyscDashboardCta } from "@/components/nysc/nysc-dashboard-cta";
 
 export const metadata = {
   title: "Global roles for post-NYSC corps members | DeepTalent",
@@ -31,6 +32,7 @@ export default async function NyscRolesPage() {
       title="Junior roles, open now"
       subtitle="Hand-picked entry-level roles with UK, US, Canadian and Australian employers. Apply and our team takes it from vetting through to deployment — usually 14–21 days."
     >
+      <NyscDashboardCta />
       <NyscRolesView />
     </NyscShell>
   );

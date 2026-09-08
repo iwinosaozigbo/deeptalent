@@ -24,7 +24,14 @@ import {
   AlertCircle,
   RotateCcw,
   Wand2,
+  LayoutTemplate,
 } from "lucide-react";
+import {
+  ResumePreview,
+  RESUME_TEMPLATES,
+  type TemplateId,
+} from "@/components/dashboard/resume-templates";
+import { PurchaseModal } from "@/components/dashboard/ai-tool-page";
 
 /* ------------------------------------------------------------------ */
 /* Types                                                                */
@@ -184,6 +191,7 @@ const WIZARD_STEPS: WizardStep[] = [
 /* ------------------------------------------------------------------ */
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 const WIZARD_CREDIT_COST = 5;
+const EXPORT_CREDIT_COST = 1;
 
 function uid() {
   return Math.random().toString(36).slice(2, 9);
@@ -218,6 +226,9 @@ export function ResumeBuilder({ profile }: { profile: any }) {
   const [openSection, setOpenSection] = useState<string>("personal");
   const [generating, setGenerating] = useState<string | null>(null);
   const [saved, setSaved] = useState<string | null>(null);
+  const [template, setTemplate] = useState<TemplateId>("modern");
+  const [exporting, setExporting] = useState(false);
+  const [showPurchase, setShowPurchase] = useState(false);
 
   const previewRef = useRef<HTMLDivElement>(null);
 
@@ -293,10 +304,34 @@ export function ResumeBuilder({ profile }: { profile: any }) {
     }
   }
 
-  /* ---- PDF export ---- */
+  /* ---- PDF export (costs 1 credit) ---- */
   const handleExportPdf = useCallback(async () => {
-    if (!previewRef.current) return;
+    if (!previewRef.current || exporting) return;
+    setExporting(true);
     try {
+      // Spend one credit up front. If the balance is empty, prompt a top-up
+      // and abort before rendering anything.
+      const spend = await fetch("/api/credits", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "spend",
+          amount: EXPORT_CREDIT_COST,
+          tool: "resumeExport",
+          description: "Resume PDF export",
+        }),
+      });
+      if (spend.status === 402) {
+        setShowPurchase(true);
+        setExporting(false);
+        return;
+      }
+      if (!spend.ok) {
+        setExporting(false);
+        return;
+      }
+      mutate("/api/credits");
+
       const html2canvas = (await import("html2canvas")).default;
       const jsPDF = (await import("jspdf")).default;
 
@@ -335,8 +370,10 @@ export function ResumeBuilder({ profile }: { profile: any }) {
       pdf.save(fileName);
     } catch (err) {
       console.error("[v0] PDF export error:", err);
+    } finally {
+      setExporting(false);
     }
-  }, [resume.fullName]);
+  }, [resume.fullName, exporting]);
 
   /* ---- wizard submit ---- */
   async function handleWizardBuild() {
@@ -610,6 +647,7 @@ export function ResumeBuilder({ profile }: { profile: any }) {
   /* ============================================================ */
   return (
     <div className="flex flex-col gap-6">
+      {showPurchase && <PurchaseModal onClose={() => setShowPurchase(false)} />}
       {/* Top bar */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -635,17 +673,58 @@ export function ResumeBuilder({ profile }: { profile: any }) {
           </button>
           <button
             onClick={handleExportPdf}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#3B5BDB] text-white text-sm font-semibold hover:bg-[#2f49b2] transition-colors"
+            disabled={exporting}
+            title={`Export costs ${EXPORT_CREDIT_COST} credit`}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#3B5BDB] text-white text-sm font-semibold hover:bg-[#2f49b2] disabled:opacity-60 transition-colors"
           >
-            <Download className="size-4" /> Export PDF
+            {exporting ? <Loader2 className="size-4 animate-spin" /> : <Download className="size-4" />}
+            {exporting ? "Exporting…" : "Export PDF"}
+            <span className="inline-flex items-center gap-0.5 rounded-full bg-white/20 px-1.5 py-0.5 text-[10px] font-bold">
+              <Zap className="size-2.5" />
+              {EXPORT_CREDIT_COST}
+            </span>
           </button>
+        </div>
+      </div>
+
+      {/* Template picker */}
+      <div className="rounded-2xl border border-gray-100 bg-white p-4">
+        <div className="mb-3 flex items-center gap-2">
+          <LayoutTemplate className="size-4 text-[#3B5BDB]" />
+          <p className="text-sm font-semibold text-gray-900">Template</p>
+          <span className="text-xs text-gray-400">— choosing a design is free</span>
+        </div>
+        <div className="flex flex-wrap gap-2.5">
+          {RESUME_TEMPLATES.map((t) => {
+            const active = template === t.id;
+            return (
+              <button
+                key={t.id}
+                onClick={() => setTemplate(t.id)}
+                className={`flex items-center gap-2.5 rounded-xl border-2 px-3 py-2 text-left transition-all ${
+                  active ? "border-[#3B5BDB] bg-[#3B5BDB]/[0.04]" : "border-gray-100 hover:border-gray-200"
+                }`}
+              >
+                <span
+                  className="grid size-8 shrink-0 place-items-center rounded-lg text-white"
+                  style={{ backgroundColor: t.accent }}
+                >
+                  {active ? <Check className="size-4" /> : <FileText className="size-4" />}
+                </span>
+                <span>
+                  <span className="block text-sm font-semibold text-gray-900 leading-tight">{t.label}</span>
+                  <span className="block text-[11px] text-gray-400 leading-tight">{t.description}</span>
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
       {preview ? (
         /* Full preview with ref for PDF export */
         <div ref={previewRef}>
-          <ResumePreview resume={resume} />
+          <ResumePreview resume={resume} template={template} />
         </div>
       ) : (
         <div className="grid lg:grid-cols-[1fr_380px] gap-6">
@@ -743,7 +822,7 @@ export function ResumeBuilder({ profile }: { profile: any }) {
               </p>
               <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
                 <div className="scale-[0.55] origin-top-left w-[182%] pointer-events-none">
-                  <ResumePreview resume={resume} compact />
+                  <ResumePreview resume={resume} template={template} compact />
                 </div>
               </div>
             </div>
@@ -1033,119 +1112,4 @@ function SkillsSection({
   );
 }
 
-/* ------------------------------------------------------------------ */
-/* Resume Preview                                                       */
-/* ------------------------------------------------------------------ */
-function ResumePreview({ resume, compact }: { resume: ResumeData; compact?: boolean }) {
-  const p = compact ? "p-6" : "p-10";
-  return (
-    <div
-      className={`bg-white ${p} font-sans text-gray-900 ${
-        compact ? "text-[11px]" : "text-sm"
-      } leading-relaxed`}
-    >
-      {/* Header */}
-      <div className="border-b-2 border-[#3B5BDB] pb-4 mb-5">
-        <h1
-          className={`font-extrabold text-gray-900 ${
-            compact ? "text-xl" : "text-3xl"
-          } leading-tight`}
-        >
-          {resume.fullName || "Your Name"}
-        </h1>
-        <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-gray-500">
-          {resume.email && <span>{resume.email}</span>}
-          {resume.phone && <span>{resume.phone}</span>}
-          {resume.location && <span>{resume.location}</span>}
-          {resume.linkedin && <span>{resume.linkedin}</span>}
-          {resume.website && <span>{resume.website}</span>}
-        </div>
-      </div>
 
-      {/* Summary */}
-      {resume.summary && (
-        <section className="mb-5">
-          <h2
-            className={`font-bold text-[#3B5BDB] uppercase tracking-wider mb-2 ${
-              compact ? "text-[9px]" : "text-xs"
-            }`}
-          >
-            Professional Summary
-          </h2>
-          <p className="text-gray-700 leading-relaxed">{resume.summary}</p>
-        </section>
-      )}
-
-      {/* Experience */}
-      {resume.experience.some((e) => e.title || e.company) && (
-        <section className="mb-5">
-          <h2
-            className={`font-bold text-[#3B5BDB] uppercase tracking-wider mb-3 ${
-              compact ? "text-[9px]" : "text-xs"
-            }`}
-          >
-            Work Experience
-          </h2>
-          <div className="space-y-4">
-            {resume.experience
-              .filter((e) => e.title || e.company)
-              .map((entry) => (
-                <div key={entry.id}>
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <p className="font-bold">{entry.title}</p>
-                      <p className="text-gray-500">{entry.company}</p>
-                    </div>
-                    {entry.period && <p className="text-gray-400 shrink-0">{entry.period}</p>}
-                  </div>
-                  {entry.bullets && (
-                    <div className="mt-2 text-gray-600 whitespace-pre-line pl-1">{entry.bullets}</div>
-                  )}
-                </div>
-              ))}
-          </div>
-        </section>
-      )}
-
-      {/* Education */}
-      {resume.education.some((e) => e.degree || e.school) && (
-        <section className="mb-5">
-          <h2
-            className={`font-bold text-[#3B5BDB] uppercase tracking-wider mb-3 ${
-              compact ? "text-[9px]" : "text-xs"
-            }`}
-          >
-            Education
-          </h2>
-          <div className="space-y-2">
-            {resume.education
-              .filter((e) => e.degree || e.school)
-              .map((entry) => (
-                <div key={entry.id} className="flex items-start justify-between">
-                  <div>
-                    <p className="font-semibold">{entry.degree}</p>
-                    <p className="text-gray-500">{entry.school}</p>
-                  </div>
-                  {entry.year && <p className="text-gray-400 shrink-0">{entry.year}</p>}
-                </div>
-              ))}
-          </div>
-        </section>
-      )}
-
-      {/* Skills */}
-      {resume.skills && (
-        <section>
-          <h2
-            className={`font-bold text-[#3B5BDB] uppercase tracking-wider mb-2 ${
-              compact ? "text-[9px]" : "text-xs"
-            }`}
-          >
-            Skills
-          </h2>
-          <p className="text-gray-700 whitespace-pre-line">{resume.skills}</p>
-        </section>
-      )}
-    </div>
-  );
-}

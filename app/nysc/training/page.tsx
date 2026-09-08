@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { NyscShell } from "@/components/nysc/nysc-shell";
 import { NyscTrainingView } from "@/components/nysc/nysc-training-view";
+import { NyscDashboardCta } from "@/components/nysc/nysc-dashboard-cta";
 
 export const metadata = {
   title: "Post-NYSC pathways for post-NYSC corps members | DeepTalent",
@@ -31,6 +32,7 @@ export default async function NyscTrainingPage() {
       title="Train to the global standard"
       subtitle="Close the readiness gap in three areas global employers screen for: employability, work culture and time discipline, and the AI tools every remote team now expects. Start lesson one free."
     >
+      <NyscDashboardCta />
       <NyscTrainingView />
     </NyscShell>
   );

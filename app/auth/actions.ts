@@ -289,6 +289,10 @@ export async function signUpNyscCorpsMember(
     return { error: "Failed to create user" };
   }
 
+  // Free starter credits so corps members can try the AI tools (CV builder,
+  // cover letters, etc.) before buying more.
+  const NYSC_WELCOME_CREDITS = 25;
+
   const { error: profileError } = await admin
     .from("profiles")
     .upsert(
@@ -297,6 +301,7 @@ export async function signUpNyscCorpsMember(
         email,
         full_name: fullName,
         role: "talent",
+        ai_credits: NYSC_WELCOME_CREDITS,
         nysc_call_up_number: callUpNumber,
         nysc_state_of_origin: stateOfOrigin,
         nysc_state_code: stateCode,
@@ -309,6 +314,14 @@ export async function signUpNyscCorpsMember(
 
   if (profileError) {
     console.error("[v0] NYSC profile upsert failed:", profileError.message);
+  } else {
+    // Log the welcome grant so it shows in the credit history.
+    await admin.from("ai_credit_transactions").insert({
+      user_id: userId,
+      delta: NYSC_WELCOME_CREDITS,
+      tool: null,
+      description: "NYSC welcome credits",
+    });
   }
 
   const nextPath = track === "training" ? "/nysc/training" : "/nysc/roles";
