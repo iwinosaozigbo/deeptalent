@@ -2,6 +2,14 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Geist, Instrument_Serif } from "next/font/google";
 import { cn } from "@/lib/utils";
+import { HOME_FAQS } from "@/lib/seo/faqs";
+import {
+  graph,
+  organizationSchema,
+  websiteSchema,
+  professionalServiceSchema,
+  faqSchema,
+} from "@/lib/seo/schema";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 const instrumentSerif = Instrument_Serif({ subsets: ['latin'], weight: '400', style: ['normal', 'italic'], variable: '--font-serif' });
@@ -40,27 +48,15 @@ export const viewport = {
   themeColor: "#FFFFFF",
 };
 
-const organizationSchema = {
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  name: "DeepTalent",
-  url: APP_URL,
-  logo: `${APP_URL}/images/logo-wordmark.png`,
-  description:
-    "A fully managed talent partner connecting credentialled finance, compliance, and technology professionals from Africa with global employers.",
-  address: {
-    "@type": "PostalAddress",
-    addressCountry: "GB",
-  },
-  sameAs: [
-    "https://www.linkedin.com/company/deeptalentplatform/",
-  ],
-  contactPoint: {
-    "@type": "ContactPoint",
-    contactType: "customer service",
-    email: "hello@deeptalent.app",
-  },
-};
+// One connected schema.org graph: Organization + WebSite (with sitelinks
+// search) + ProfessionalService + FAQPage. This is what feeds Google's
+// entity understanding, rich results, and AI Overview citations.
+const structuredData = graph(
+  organizationSchema(),
+  websiteSchema(),
+  professionalServiceSchema(),
+  faqSchema(HOME_FAQS),
+);
 
 export default function RootLayout({
   children,
@@ -72,7 +68,7 @@ export default function RootLayout({
       <body>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
         {children}
       </body>
