@@ -97,6 +97,13 @@ export function TalentDashboard({
     <div className="flex flex-col lg:flex-row max-w-[1400px] mx-auto w-full relative">
       {/* Sidebar */}
       <aside className="lg:w-60 shrink-0 border-b lg:border-b-0 lg:border-r border-gray-100 bg-white">
+        {/* Mobile-only top row keeps the credits balance + buy button visible */}
+        <div className="flex lg:hidden items-center justify-between px-4 py-2.5 border-b border-gray-100">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
+            <LayoutDashboard className="size-3.5" /> Dashboard
+          </p>
+          <CreditsBadge />
+        </div>
         <nav className="flex lg:flex-col gap-1 p-3 lg:p-4 overflow-x-auto lg:overflow-x-visible lg:sticky lg:top-0">
           <div className="hidden lg:flex items-center justify-between px-3 pb-2">
             <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">

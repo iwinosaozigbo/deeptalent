@@ -36,20 +36,20 @@ export function NyscShell({ active, name, eyebrow, title, subtitle, children }: 
         />
 
         <div className="relative z-10 mx-auto max-w-6xl px-6">
-          {/* Top bar */}
-          <div className="flex items-center justify-between py-5">
+          {/* Top bar — wraps on mobile so the nav drops to its own row */}
+          <div className="flex flex-wrap items-center justify-between gap-y-3 py-4 md:py-5">
             <Link href="/" className="inline-flex items-center gap-2.5">
               <img
                 src="/images/nysc-logo.png"
                 alt="Post-NYSC"
-                className="size-10 rounded-full bg-white/90 object-contain p-0.5"
+                className="size-9 rounded-full bg-white/90 object-contain p-0.5 md:size-10"
               />
               <span className="text-sm font-semibold text-white">
                 DeepTalent <span className="text-white/60">for post-NYSC</span>
               </span>
             </Link>
 
-            <nav className="flex items-center gap-1 rounded-full border border-white/20 bg-white/10 p-1 backdrop-blur">
+            <nav className="order-last flex w-full items-center justify-center gap-1 rounded-full border border-white/20 bg-white/10 p-1 backdrop-blur md:order-none md:w-auto">
               {NAV.map((item) => (
                 <Link
                   key={item.key}
