@@ -82,7 +82,11 @@ export function TalentDashboard({
     getResumeDownloadUrl: (path: string) => Promise<{ ok: boolean; url?: string; error?: string }>;
   };
 }) {
-  const [tab, setTab] = useState<Tab>("overview");
+  const [tab, setTab] = useState<Tab>(() => {
+    if (typeof window === "undefined") return "overview";
+    const requested = new URLSearchParams(window.location.search).get("tab");
+    return NAV.some((n) => n.id === requested) ? (requested as Tab) : "overview";
+  });
   const counts: Partial<Record<Tab, number>> = {
     resumes: resumes.length,
     certifications: certifications.length,

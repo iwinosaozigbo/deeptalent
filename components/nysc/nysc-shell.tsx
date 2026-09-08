@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ReactNode } from "react";
-import { LogOut } from "lucide-react";
+import { LogOut, LayoutDashboard } from "lucide-react";
 
 interface NyscShellProps {
   active: "roles" | "training";
@@ -65,13 +65,23 @@ export function NyscShell({ active, name, eyebrow, title, subtitle, children }: 
               ))}
             </nav>
 
-            <a
-              href="/auth/logout"
-              className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-sm font-medium text-white/90 transition-colors hover:bg-white/20"
-            >
-              <LogOut className="size-4" />
-              <span className="hidden sm:inline">Sign out</span>
-            </a>
+            <div className="flex items-center gap-2">
+              <Link
+                href="/dashboard"
+                className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1.5 text-sm font-semibold text-[#0F7A3D] shadow-sm transition-colors hover:bg-white/90"
+              >
+                <LayoutDashboard className="size-4" />
+                <span className="hidden sm:inline">My Dashboard</span>
+              </Link>
+
+              <a
+                href="/auth/logout"
+                className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-sm font-medium text-white/90 transition-colors hover:bg-white/20"
+              >
+                <LogOut className="size-4" />
+                <span className="hidden sm:inline">Sign out</span>
+              </a>
+            </div>
           </div>
 
           {/* Hero */}

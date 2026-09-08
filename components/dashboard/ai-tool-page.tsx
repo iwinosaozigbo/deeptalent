@@ -44,28 +44,21 @@ export function CreditsBadge() {
   const credits = data?.credits;
   const low = typeof credits === "number" && credits < 5;
 
-  // When returning from Stripe Checkout, verify the session and grant credits once.
+  // Returning from Flutterwave checkout: the callback route already granted the
+  // credits server-side, so we just refresh the balance and clean the URL.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const sessionId = params.get("credits_session");
-    if (!sessionId) return;
+    const purchased = params.get("credits_purchased");
+    if (!purchased) return;
 
-    setVerifying(true);
-    fetch("/api/credits/verify", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sessionId }),
-    })
-      .then((r) => r.json())
-      .then(() => mutate("/api/credits"))
-      .finally(() => {
-        setVerifying(false);
-        // Clean the query params so a refresh doesn't re-trigger
-        params.delete("credits_session");
-        params.delete("credits_cancelled");
-        const clean = `${window.location.pathname}${params.toString() ? `?${params}` : ""}`;
-        window.history.replaceState({}, "", clean);
-      });
+    if (purchased === "1") {
+      setVerifying(true);
+      mutate("/api/credits").finally(() => setVerifying(false));
+    }
+
+    params.delete("credits_purchased");
+    const clean = `${window.location.pathname}${params.toString() ? `?${params}` : ""}`;
+    window.history.replaceState({}, "", clean);
   }, []);
 
   return (
@@ -145,7 +138,7 @@ export function PurchaseModal({ onClose }: { onClose: () => void }) {
         <div className="space-y-3">
           {CREDIT_PACKAGES.map((pkg) => {
             const total = packageTotalCredits(pkg);
-            const price = pkg.priceInCents / 100;
+            const price = pkg.priceNgn;
             return (
               <button
                 key={pkg.id}
@@ -178,8 +171,8 @@ export function PurchaseModal({ onClose }: { onClose: () => void }) {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-bold text-gray-900">${price.toFixed(2)}</p>
-                  <p className="text-[11px] text-gray-400">${(price / total).toFixed(2)}/credit</p>
+                  <p className="text-sm font-bold text-gray-900">₦{price.toLocaleString("en-NG")}</p>
+                  <p className="text-[11px] text-gray-400">₦{Math.round(price / total).toLocaleString("en-NG")}/credit</p>
                 </div>
               </button>
             );
@@ -187,7 +180,7 @@ export function PurchaseModal({ onClose }: { onClose: () => void }) {
         </div>
 
         <p className="text-[11px] text-gray-400 text-center mt-4 flex items-center justify-center gap-1">
-          <Lock className="size-3" /> Secure checkout by Stripe · Credits never expire
+          <Lock className="size-3" /> Secure checkout by Flutterwave · Credits never expire
         </p>
 
         <button
