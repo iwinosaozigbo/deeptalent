@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Geist, Instrument_Serif } from "next/font/google";
 import { cn } from "@/lib/utils";
+import { NyscPromoModal } from "@/components/site/nysc-promo-modal";
 import { HOME_FAQS } from "@/lib/seo/faqs";
 import {
   graph,
@@ -71,6 +72,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
         {children}
+        <NyscPromoModal />
       </body>
     </html>
   );
