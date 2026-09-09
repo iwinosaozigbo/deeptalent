@@ -498,7 +498,10 @@ export function ResumeBuilder({ profile }: { profile: any }) {
   if (mode === "wizard") {
     const step = WIZARD_STEPS[wizardStep];
     const isLast = wizardStep === WIZARD_STEPS.length - 1;
-    const currentValue = wizardAnswers[step.field] || "";
+    // Always coerce to a plain string — every wizard answer is free text,
+    // never a number or other type, so this can never crash on odd input.
+    const rawValue = wizardAnswers[step.field];
+    const currentValue = typeof rawValue === "string" ? rawValue : String(rawValue ?? "");
     const canNext = !step.required || currentValue.trim().length > 0;
     const progress = ((wizardStep + 1) / WIZARD_STEPS.length) * 100;
 
@@ -553,16 +556,17 @@ export function ResumeBuilder({ profile }: { profile: any }) {
 
           {step.type === "textarea" ? (
             <textarea
+              key={step.id}
               autoFocus
               rows={5}
               value={currentValue}
               onChange={(e) =>
-                setWizardAnswers((prev) => ({ ...prev, [step.field]: e.target.value }))
+                setWizardAnswers((prev) => ({ ...prev, [step.field]: e.target.value ?? "" }))
               }
               placeholder={step.placeholder}
               className="w-full form-input text-sm resize-none"
               onKeyDown={(e) => {
-                if (e.key === "Enter" && e.metaKey && canNext) {
+                if (e.key === "Enter" && e.metaKey && !e.nativeEvent.isComposing && canNext) {
                   e.preventDefault();
                   isLast ? handleWizardBuild() : setWizardStep((s) => s + 1);
                 }
@@ -570,11 +574,18 @@ export function ResumeBuilder({ profile }: { profile: any }) {
             />
           ) : (
             <input
+              // A fresh key per step guarantees a clean DOM node for every
+              // question, so the browser never has to mutate an existing
+              // input's type (e.g. email -> text) in place — every field
+              // (including "current or most recent job title") is always a
+              // plain, freely-typed text field.
+              key={step.id}
               autoFocus
-              type={step.type}
+              type={step.field === "email" ? "email" : "text"}
+              inputMode="text"
               value={currentValue}
               onChange={(e) =>
-                setWizardAnswers((prev) => ({ ...prev, [step.field]: e.target.value }))
+                setWizardAnswers((prev) => ({ ...prev, [step.field]: e.target.value ?? "" }))
               }
               placeholder={step.placeholder}
               className="w-full form-input text-sm"
