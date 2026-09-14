@@ -20,6 +20,7 @@ import { CertificationsPanel } from "@/components/dashboard/certifications-panel
 import { TalentOverview } from "@/components/dashboard/talent-overview";
 import { FloatingCareerChat } from "@/components/dashboard/floating-career-chat";
 import { ResumeBuilder } from "@/components/dashboard/resume-builder";
+import { TrainingBanner } from "@/components/dashboard/training-banner";
 import { CreditsBadge } from "@/components/dashboard/ai-tool-page";
 import { CoverLetterGenerator } from "@/components/dashboard/cover-letter-generator";
 import { LinkedInReview } from "@/components/dashboard/linkedin-review";
@@ -155,6 +156,11 @@ export function TalentDashboard({
 
       {/* Content */}
       <div className="flex-1 min-w-0 px-4 md:px-8 py-8">
+        {tab === "overview" && (
+          <div className="mb-6">
+            <TrainingBanner />
+          </div>
+        )}
         {tab === "overview" && (
           <TalentOverview
             email={email}

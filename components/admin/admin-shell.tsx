@@ -22,6 +22,7 @@ import { CalendarTab } from "@/components/admin/calendar-tab";
 import { SocialTab } from "@/components/admin/social-tab";
 import { OutboundTab } from "@/components/admin/outbound-tab";
 import { CorpsMembersTab } from "@/components/admin/corps-members-tab";
+import { FinancesTab } from "@/components/admin/finances-tab";
 import { useAdminMe } from "@/components/admin/use-admin-me";
 import {
   Activity,
@@ -44,6 +45,7 @@ import {
   UserPlus,
   Building2,
   ShieldCheck,
+  Wallet,
 } from "lucide-react";
 
 type Message = {
@@ -85,7 +87,8 @@ type Tab =
   | "calendar"
   | "social"
   | "outbound"
-  | "placements";
+  | "placements"
+  | "finances";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -190,6 +193,7 @@ export function AdminShell({
     {
       label: "Operations",
       items: [
+        { id: "finances" as Tab, label: "Finances", icon: Wallet, count: null },
         { id: "tasks" as Tab, label: "Tasks", icon: ListChecks, count: null },
         { id: "calendar" as Tab, label: "Calendar", icon: CalendarDays, count: null },
         { id: "social" as Tab, label: "Social Analytics", icon: BarChart3, count: null },
@@ -341,6 +345,7 @@ export function AdminShell({
           <div className="max-w-6xl mx-auto">
             {tab === "users" && <UsersTab />}
             {tab === "corps_members" && <CorpsMembersTab />}
+            {tab === "finances" && <FinancesTab />}
             {tab === "placements" && <PlacementsTab />}
             {tab === "outbound" && <OutboundTab />}
             {tab === "files" && <FilesTab initialFiles={files} />}
