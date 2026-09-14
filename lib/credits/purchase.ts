@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { initializeFlutterwavePayment, verifyFlutterwaveTransaction } from "@/lib/flutterwave";
 import { getPackage, packageTotalCredits, type CreditPackage } from "@/lib/credits/packages";
+import { sendPaymentReceipt } from "@/lib/email/receipt";
 
 /**
  * AI-credit purchases via Flutterwave (NGN). Mirrors the proven post-NYSC
@@ -145,12 +146,24 @@ export async function confirmCreditPurchase(transactionId: string): Promise<Conf
 
   const { data: profile } = await sb
     .from("profiles")
-    .select("ai_credits")
+    .select("ai_credits, email, full_name")
     .eq("id", payment.user_id)
     .single();
   const newBalance = (profile?.ai_credits ?? 0) + payment.credits;
 
   await sb.from("profiles").update({ ai_credits: newBalance }).eq("id", payment.user_id);
+
+  if (profile?.email) {
+    await sendPaymentReceipt({
+      to: profile.email,
+      name: profile.full_name,
+      item: `AI credits — ${payment.package_id} pack`,
+      amountNgn: payment.amount_ngn,
+      reference: verified.txRef,
+      paidAt: now,
+      extras: [{ label: "Credits added", value: `+${payment.credits}` }],
+    });
+  }
 
   return { success: true, userId: payment.user_id, credits: newBalance };
 }

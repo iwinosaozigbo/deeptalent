@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import useSWR from "swr";
 import {
   ResponsiveContainer,
@@ -14,8 +15,10 @@ import {
   ArrowDownRight,
   ArrowUpRight,
   BadgeDollarSign,
+  Check,
   CreditCard,
   GraduationCap,
+  Mail,
   Receipt,
   RefreshCw,
   TrendingUp,
@@ -86,6 +89,24 @@ export function FinancesTab() {
       ? 100
       : 0;
   const up = delta >= 0;
+
+  // Per-row receipt state, keyed by tx_ref: "sending" | "sent" | "error".
+  const [receiptState, setReceiptState] = useState<Record<string, "sending" | "sent" | "error">>({});
+
+  async function sendReceipt(ref: string, source: SourceKey, hasEmail: boolean) {
+    if (!hasEmail || receiptState[ref] === "sending") return;
+    setReceiptState((s) => ({ ...s, [ref]: "sending" }));
+    try {
+      const res = await fetch("/api/admin/finances/receipt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ref, source }),
+      });
+      setReceiptState((s) => ({ ...s, [ref]: res.ok ? "sent" : "error" }));
+    } catch {
+      setReceiptState((s) => ({ ...s, [ref]: "error" }));
+    }
+  }
 
   return (
     <div>
@@ -219,7 +240,7 @@ export function FinancesTab() {
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-100">
                 <tr>
-                  {["Payer", "Source", "Amount", "Date"].map((h) => (
+                  {["Payer", "Source", "Amount", "Date", "Receipt"].map((h) => (
                     <th
                       key={h}
                       className="px-5 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider whitespace-nowrap"
@@ -248,6 +269,30 @@ export function FinancesTab() {
                         {ngn(t.amount_ngn)}
                       </td>
                       <td className="px-5 py-4 text-xs text-gray-400 whitespace-nowrap">{formatDate(t.at)}</td>
+                      <td className="px-5 py-4 whitespace-nowrap">
+                        {(() => {
+                          const state = receiptState[t.ref];
+                          const hasEmail = Boolean(t.payer_email);
+                          if (state === "sent") {
+                            return (
+                              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-600">
+                                <Check className="size-3.5" /> Sent
+                              </span>
+                            );
+                          }
+                          return (
+                            <button
+                              onClick={() => sendReceipt(t.ref, t.source, hasEmail)}
+                              disabled={!hasEmail || state === "sending"}
+                              title={hasEmail ? "Email this receipt to the payer" : "No email on file"}
+                              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg border border-gray-200 text-xs font-medium text-gray-600 hover:bg-gray-50 hover:border-[#3B5BDB]/40 hover:text-[#3B5BDB] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                            >
+                              <Mail className={`size-3.5 ${state === "sending" ? "animate-pulse" : ""}`} />
+                              {state === "sending" ? "Sending…" : state === "error" ? "Retry" : "Send"}
+                            </button>
+                          );
+                        })()}
+                      </td>
                     </tr>
                   );
                 })}
