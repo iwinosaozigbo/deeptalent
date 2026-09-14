@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { COURSE } from "@/lib/nysc/course-content";
 import { initializeFlutterwavePayment, verifyFlutterwaveTransaction } from "@/lib/flutterwave";
+import { sendPaymentReceipt } from "@/lib/email/receipt";
 
 export const CERTIFICATE_REPRINT_PRICE_NGN = 500;
 
@@ -124,6 +125,23 @@ export async function confirmCoursePayment(transactionId: string): Promise<Confi
     })
     .eq("id", payment.user_id);
 
+  const { data: payer } = await sb
+    .from("profiles")
+    .select("email, full_name")
+    .eq("id", payment.user_id)
+    .single();
+
+  if (payer?.email) {
+    await sendPaymentReceipt({
+      to: payer.email,
+      name: payer.full_name,
+      item: "Get Global Workforce Ready — post-NYSC course enrolment",
+      amountNgn: payment.amount_ngn,
+      reference: verified.txRef,
+      paidAt: now,
+    });
+  }
+
   return { success: true, userId: payment.user_id };
 }
 
@@ -229,6 +247,24 @@ export async function confirmCertificateReprintPayment(
       nysc_certificate_reprint_credits: (profile?.nysc_certificate_reprint_credits || 0) + 1,
     })
     .eq("id", payment.user_id);
+
+  const { data: payer } = await sb
+    .from("profiles")
+    .select("email, full_name")
+    .eq("id", payment.user_id)
+    .single();
+
+  if (payer?.email) {
+    await sendPaymentReceipt({
+      to: payer.email,
+      name: payer.full_name,
+      item: "NYSC certificate reprint",
+      amountNgn: payment.amount_ngn,
+      reference: verified.txRef,
+      paidAt: now,
+      extras: [{ label: "Reprint credits", value: "+1" }],
+    });
+  }
 
   return { success: true, userId: payment.user_id };
 }
