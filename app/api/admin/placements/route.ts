@@ -26,6 +26,21 @@ async function requireAdmin() {
   return profile;
 }
 
+// placements.talent_user_id and .company_user_id both have FK constraints
+// pointing at profiles(id). Verify any non-null id actually exists there
+// before writing, so a bad id never reaches the DB as a raw FK violation.
+async function assertValidProfileId(
+  sb: ReturnType<typeof serviceClient>,
+  id: string | null,
+  label: string
+) {
+  if (!id) return null;
+  const { data, error } = await sb.from("profiles").select("id").eq("id", id).maybeSingle();
+  if (error) return `Could not verify ${label}: ${error.message}`;
+  if (!data) return `${label} "${id}" does not match any existing profile.`;
+  return null;
+}
+
 // GET /api/admin/placements — list all placements
 export async function GET() {
   const admin = await requireAdmin();
@@ -65,15 +80,25 @@ export async function POST(request: Request) {
     typeof v === "string" && v.trim().length > 0 ? v.trim() : null;
 
   const sb = serviceClient();
+
+  const talentUserId = toUuid(talent_user_id);
+  const companyUserId = toUuid(company_user_id);
+  const [talentErr, companyErr] = await Promise.all([
+    assertValidProfileId(sb, talentUserId, "talent_user_id"),
+    assertValidProfileId(sb, companyUserId, "company_user_id"),
+  ]);
+  const fkError = talentErr || companyErr;
+  if (fkError) return NextResponse.json({ error: fkError }, { status: 400 });
+
   const { data, error } = await sb
     .from("placements")
     .insert({
-      talent_user_id: toUuid(talent_user_id),
+      talent_user_id: talentUserId,
       talent_name,
       talent_email,
       talent_role: talent_role || null,
       talent_seniority: talent_seniority || null,
-      company_user_id: toUuid(company_user_id),
+      company_user_id: companyUserId,
       company_name,
       company_contact: company_contact || null,
       company_email: company_email || null,
@@ -112,6 +137,18 @@ export async function PATCH(request: Request) {
   };
 
   const sb = serviceClient();
+
+  const [talentErr, companyErr] = await Promise.all([
+    updates.talent_user_id !== undefined
+      ? assertValidProfileId(sb, updates.talent_user_id, "talent_user_id")
+      : Promise.resolve(null),
+    updates.company_user_id !== undefined
+      ? assertValidProfileId(sb, updates.company_user_id, "company_user_id")
+      : Promise.resolve(null),
+  ]);
+  const fkError = talentErr || companyErr;
+  if (fkError) return NextResponse.json({ error: fkError }, { status: 400 });
+
   const { data, error } = await sb
     .from("placements")
     .update(updates)
