@@ -59,7 +59,7 @@ export async function GET() {
       .select(
         "id,email,full_name,role,created_at,nysc_call_up_number,nysc_state_of_origin,nysc_state_code,nysc_track,nysc_course_completed_at,nysc_course_completed_source,nysc_certificate_number,nysc_certificate_sent_at,nysc_course_paid_at,nysc_course_payment_amount_ngn"
       )
-      .or("nysc_call_up_number.not.is.null,nysc_state_code.not.is.null")
+      .or("nysc_call_up_number.not.is.null,nysc_state_code.not.is.null,nysc_track.not.is.null")
       .order("created_at", { ascending: false })
       .limit(2000),
     sb.from("talent_applications").select("user_id,status").not("user_id", "is", null),
