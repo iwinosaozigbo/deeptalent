@@ -24,6 +24,8 @@ import {
   TrendingUp,
   Quote,
   Calendar,
+  Building2,
+  MapPin,
 } from "lucide-react";
 
 /* Google "G" mark */
@@ -539,71 +541,41 @@ function KickstartAI() {
   );
 }
 
-/* ─── New Startups (carousel of hiring startups) ────────────────── */
+/* ─── Jobs in Network (carousel of approved in-network roles) ────── */
 
-const STARTUPS = [
-  { name: "Evolve Credit", jobs: 5, desc: "Helping financial institutions launch and manage credit ventures.", mode: "Remote", loc: "Wilmington", color: "#0EA5E9", icon: BarChart3, dark: false },
-  { name: "GLO", jobs: 2, desc: "GLO helps elevate daily life through mindful wellness.", mode: "On-site", loc: "California", color: "#22C55E", icon: TrendingUp, dark: false },
-  { name: "Eversend", jobs: 8, desc: "Eversend makes transfers, investments, and spending simple.", mode: "Hybrid", loc: "England", color: "#7C3AED", icon: DollarSign, dark: false },
-  { name: "Flux", jobs: 7, desc: "Flux scales from quick prototypes to production-ready systems.", mode: "Hybrid", loc: "Japan", color: "#111827", icon: Zap, dark: true },
-  { name: "HabariPay", jobs: 3, desc: "HabariPay transforms digital payments with advanced technology.", mode: "Remote", loc: "Nigeria", color: "#EF4444", icon: Cpu, dark: false },
-];
+type NetworkRole = {
+  id: string;
+  company: string;
+  title: string;
+  category: string | null;
+  team_size: string | null;
+  urgency: string | null;
+  budget_range: string | null;
+  summary: string | null;
+  posted_at: string;
+};
 
-const startupsFetcher = (url: string) => fetch(url).then((r) => r.json());
-const STARTUP_ICONS = [BarChart3, TrendingUp, DollarSign, Zap, Cpu] as const;
-const STARTUP_COLORS = ["#0EA5E9", "#22C55E", "#7C3AED", "#EF4444", "#3B5BDB"];
-
-type DerivedStartup = (typeof STARTUPS)[number];
+const rolesFetcher = (url: string) => fetch(url).then((r) => r.json());
+const ROLE_ICONS = [BarChart3, TrendingUp, DollarSign, Cpu, Layers, Shield] as const;
+const ROLE_COLORS = ["#3B5BDB", "#0EA5E9", "#7C3AED", "#059669", "#EA580C", "#CA8A04"];
 
 /**
- * Turn the flat external-jobs feed into "startup" cards by grouping live
- * listings under the company that posted them — companies with the most open
- * roles surface first, so this doubles as a real hiring leaderboard.
+ * Live in-network roles: pulls the same admin-approved / qualified inquiries
+ * that power /api/public/roles, so a role set to "qualified" in the admin
+ * pipeline surfaces here automatically. Cards mirror the previous "New
+ * Startups" design exactly.
  */
-function deriveStartups(
-  jobs: Array<{ company: string; title: string; location: string | null; remote: boolean }>
-): DerivedStartup[] {
-  const byCompany = new Map<string, typeof jobs>();
-  for (const j of jobs) {
-    if (!j.company) continue;
-    if (!byCompany.has(j.company)) byCompany.set(j.company, []);
-    byCompany.get(j.company)!.push(j);
-  }
-  return [...byCompany.entries()]
-    .sort((a, b) => b[1].length - a[1].length)
-    .slice(0, 12)
-    .map(([name, list], i) => {
-      const remote = list.some((j) => j.remote);
-      const loc = (list.find((j) => j.location)?.location || (remote ? "Remote" : "Global")).slice(0, 18);
-      const extra = list.length - 1;
-      return {
-        name,
-        jobs: list.length,
-        desc:
-          extra > 0
-            ? `Hiring for ${list[0].title} and ${extra} more role${extra > 1 ? "s" : ""}.`
-            : `Hiring for ${list[0].title}.`,
-        mode: remote ? "Remote" : "On-site",
-        loc,
-        color: STARTUP_COLORS[i % STARTUP_COLORS.length],
-        icon: STARTUP_ICONS[i % STARTUP_ICONS.length],
-        dark: i % 6 === 3,
-      };
-    });
-}
-
-function NewStartups() {
+function JobsInNetwork() {
   const [page, setPage] = useState(0);
-  const { data } = useSWR<{ jobs: Parameters<typeof deriveStartups>[0] }>(
-    "/api/public/external-jobs",
-    startupsFetcher,
+  const { data, isLoading } = useSWR<{ roles: NetworkRole[] }>(
+    "/api/public/roles",
+    rolesFetcher,
     { revalidateOnFocus: false }
   );
-  // Real scraped startups when the feed is available; the curated list is the
-  // graceful fallback while loading or if every upstream source is down.
-  const startups = data?.jobs?.length ? deriveStartups(data.jobs) : STARTUPS;
+
+  const roles = data?.roles || [];
   const perPage = 5;
-  const totalPages = Math.ceil(startups.length / perPage);
+  const totalPages = Math.max(1, Math.ceil(roles.length / perPage));
   const paginate = (dir: number) => setPage((p) => (p + dir + totalPages) % totalPages);
 
   return (
@@ -611,23 +583,26 @@ function NewStartups() {
       <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-[300px_1fr] gap-10 items-start">
         {/* Left heading */}
         <div className="lg:sticky lg:top-28">
+          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#3B5BDB]/10 text-[#3B5BDB] text-xs font-semibold uppercase tracking-wide mb-4">
+            <BriefcaseBusiness className="size-3.5" /> In-network
+          </span>
           <h2 className="text-5xl lg:text-6xl font-extrabold tracking-tight text-gray-900 leading-[0.95] mb-5">
-            New<br />Startups
+            Jobs in<br />Network
           </h2>
           <p className="text-gray-500 leading-relaxed max-w-xs mb-8 text-pretty">
-            Discover innovative startups and find the role that matches your passion.
+            Live roles from vetted DeepTalent companies — approved and ready for you to apply directly.
           </p>
           <div className="flex items-center gap-3">
             <button
               onClick={() => paginate(-1)}
-              aria-label="Previous startups"
+              aria-label="Previous roles"
               className="grid size-10 place-items-center rounded-full border border-gray-200 text-gray-400 hover:text-gray-900 hover:border-gray-900 transition-colors"
             >
               <ArrowRight className="size-4 rotate-180" />
             </button>
             <button
               onClick={() => paginate(1)}
-              aria-label="Next startups"
+              aria-label="Next roles"
               className="grid size-12 place-items-center rounded-full border border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white transition-colors"
             >
               <ArrowRight className="size-5" />
@@ -636,52 +611,89 @@ function NewStartups() {
         </div>
 
         {/* Cards grid */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={page}
-            initial={{ opacity: 0, x: 24 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -24 }}
-            transition={{ duration: 0.35 }}
-            className="grid sm:grid-cols-2 xl:grid-cols-3 gap-5"
-          >
-            {startups.slice(page * perPage, page * perPage + perPage).map((s) => (
-              <div
-                key={s.name}
-                className={`rounded-3xl p-6 flex flex-col transition-shadow hover:shadow-lg ${
-                  s.dark ? "bg-gray-950 text-white" : "bg-gray-50"
-                }`}
-              >
-                <div className="flex items-center justify-between mb-5">
-                  <span
-                    className="grid size-11 place-items-center rounded-full"
-                    style={{ backgroundColor: s.dark ? "#ffffff" : s.color + "1A" }}
-                  >
-                    <s.icon className="size-5" style={{ color: s.dark ? s.color : s.color }} />
-                  </span>
-                  <span className={`text-sm font-semibold ${s.dark ? "text-white/60" : "text-gray-400"}`}>{s.jobs} jobs</span>
-                </div>
-                <h3 className="text-lg font-bold mb-2">{s.name}</h3>
-                <p className={`text-sm leading-relaxed mb-6 flex-1 ${s.dark ? "text-white/60" : "text-gray-500"}`}>{s.desc}</p>
-                <div className={`flex items-center gap-4 text-xs font-medium ${s.dark ? "text-white/70" : "text-gray-500"}`}>
-                  <span className="inline-flex items-center gap-1.5"><BriefcaseBusiness className="size-3.5" /> {s.mode}</span>
-                  <span className="inline-flex items-center gap-1.5"><Globe2 className="size-3.5" /> {s.loc}</span>
-                </div>
-              </div>
+        {isLoading ? (
+          <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-5">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="h-52 rounded-3xl bg-gray-50 animate-pulse" />
             ))}
-
-            {/* Explore all card */}
-            <Link
-              href="/talents/apply"
-              className="rounded-3xl border border-gray-200 p-6 flex flex-col items-center justify-center text-center hover:border-gray-900 transition-colors group"
+          </div>
+        ) : roles.length === 0 ? (
+          <div className="rounded-3xl border border-dashed border-gray-200 bg-gray-50 p-12 text-center">
+            <BriefcaseBusiness className="size-8 text-gray-300 mx-auto mb-3" />
+            <p className="text-sm text-gray-500">No in-network roles are live right now. Check back soon.</p>
+          </div>
+        ) : (
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={page}
+              initial={{ opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -24 }}
+              transition={{ duration: 0.35 }}
+              className="grid sm:grid-cols-2 xl:grid-cols-3 gap-5"
             >
-              <p className="text-4xl font-extrabold text-gray-900">180+</p>
-              <p className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-gray-600 group-hover:text-[#3B5BDB]">
-                Explore all startups <ArrowRight className="size-4" />
-              </p>
-            </Link>
-          </motion.div>
-        </AnimatePresence>
+              {roles.slice(page * perPage, page * perPage + perPage).map((r, i) => {
+                const idx = page * perPage + i;
+                const color = ROLE_COLORS[idx % ROLE_COLORS.length];
+                const Icon = ROLE_ICONS[idx % ROLE_ICONS.length];
+                const dark = idx % 6 === 3;
+                return (
+                  <Link
+                    key={r.id}
+                    href={`/talents/apply#roles`}
+                    className={`text-left rounded-3xl p-6 flex flex-col transition-shadow hover:shadow-lg ${
+                      dark ? "bg-gray-950 text-white" : "bg-gray-50"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-5">
+                      <span
+                        className="grid size-11 place-items-center rounded-full"
+                        style={{ backgroundColor: dark ? "#ffffff" : color + "1A" }}
+                      >
+                        <Icon className="size-5" style={{ color }} />
+                      </span>
+                      {r.category && (
+                        <span
+                          className={`text-[11px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full ${
+                            dark ? "bg-white/10 text-white/70" : "bg-white text-gray-500 border border-gray-200"
+                          }`}
+                        >
+                          {r.category}
+                        </span>
+                      )}
+                    </div>
+                    <h3 className="text-lg font-bold mb-1.5 line-clamp-2 leading-snug">{r.title}</h3>
+                    <p className={`text-sm mb-6 flex-1 inline-flex items-center gap-1.5 ${dark ? "text-white/60" : "text-gray-500"}`}>
+                      <Building2 className="size-3.5 shrink-0" /> {r.company}
+                    </p>
+                    <div className={`flex items-center gap-4 text-xs font-medium ${dark ? "text-white/70" : "text-gray-500"}`}>
+                      {r.team_size && (
+                        <span className="inline-flex items-center gap-1.5">
+                          <BriefcaseBusiness className="size-3.5" /> {r.team_size}
+                        </span>
+                      )}
+                      <span className="inline-flex items-center gap-1.5 truncate">
+                        <MapPin className="size-3.5 shrink-0" />{" "}
+                        <span className="truncate">{r.budget_range || r.urgency || "Apply now"}</span>
+                      </span>
+                    </div>
+                  </Link>
+                );
+              })}
+
+              {/* Explore all card */}
+              <Link
+                href="/talents/apply#roles"
+                className="rounded-3xl border border-gray-200 p-6 flex flex-col items-center justify-center text-center hover:border-gray-900 transition-colors group"
+              >
+                <p className="text-4xl font-extrabold text-gray-900">{roles.length}+</p>
+                <p className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-gray-600 group-hover:text-[#3B5BDB]">
+                  Explore all roles <ArrowRight className="size-4" />
+                </p>
+              </Link>
+            </motion.div>
+          </AnimatePresence>
+        )}
       </div>
     </section>
   );
@@ -1333,7 +1345,7 @@ export function TalentsPageClient() {
       <SiteNavbar />
       <TalentHero />
       <KickstartAI />
-      <NewStartups />
+      <JobsInNetwork />
       <ExternalRoles limit={12} />
       <FeaturesGrid />
       <SkillOrbit />
