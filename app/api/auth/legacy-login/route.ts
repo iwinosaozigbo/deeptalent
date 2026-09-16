@@ -13,10 +13,16 @@ const scrypt = promisify(scryptCb) as (
 ) => Promise<Buffer>;
 
 /**
- * Verifies a Better-Auth scrypt hash of the form `salt_hex:hash_hex` (16-byte salt, 64-byte key).
- * If valid, rotates the user's Supabase Auth password to the same plaintext so the
- * Supabase login that runs immediately after on the client succeeds, then clears the
- * legacy hash so we never use it again.
+ * Recovery step that runs when a client-side `signInWithPassword` fails.
+ *
+ * Handles two cases so the retry that runs immediately after on the client can succeed:
+ *   1. Legacy Better-Auth users: verify the scrypt hash `salt_hex:hash_hex`
+ *      (16-byte salt, 64-byte key); if valid, rotate the Supabase Auth password to the
+ *      same plaintext and clear the legacy hash so we never use it again.
+ *   2. Unconfirmed users (e.g. corps members whose 6-digit confirmation email never
+ *      arrived): mark the email confirmed so Supabase stops rejecting the login with
+ *      "Email not confirmed". Confirmation is NOT authentication — the retried
+ *      signInWithPassword still requires the correct password — so this is safe.
  */
 export async function POST(req: Request) {
   try {
@@ -44,7 +50,25 @@ export async function POST(req: Request) {
       .maybeSingle();
 
     if (!profile?.legacy_password_hash) {
-      // No legacy hash -> nothing to migrate, let the normal Supabase login proceed
+      // No legacy hash to migrate. Before giving up, handle the common case where the
+      // account simply never got its email confirmed — confirm it so the client's retry
+      // can proceed. The retry still needs the correct password, so this leaks nothing.
+      if (profile?.id) {
+        const { data: userData } = await sb.auth.admin.getUserById(profile.id);
+        const confirmedAt = userData?.user?.email_confirmed_at;
+        if (userData?.user && !confirmedAt) {
+          const { error: confirmError } = await sb.auth.admin.updateUserById(profile.id, {
+            email_confirm: true,
+          });
+          if (!confirmError) {
+            return NextResponse.json({ ok: true, reason: "confirmed_email" });
+          }
+          return NextResponse.json(
+            { ok: false, reason: "confirm_failed", error: confirmError.message },
+            { status: 500 },
+          );
+        }
+      }
       return NextResponse.json({ ok: false, reason: "no_legacy" });
     }
 
