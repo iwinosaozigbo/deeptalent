@@ -103,6 +103,8 @@ export type Lesson = {
   videoUrl?: string;
   blocks: LessonBlock[];
   closing: string;
+  /** Prompt shown above the assignment submission box, for lessons with a graded deliverable. */
+  assignmentPrompt?: string;
 };
 
 /** Full content for every module across the three days, in curriculum order. */
@@ -149,6 +151,7 @@ export const LESSONS: Lesson[] = [
     title: "Your global-ready profile",
     intro:
       "How to turn your NYSC service and local experience into a CV, LinkedIn and portfolio a UK, US, Canadian or Australian hiring manager will actually read.",
+    videoUrl: "https://www.youtube.com/embed/EdXo1VJnV3M?rel=0&modestbranding=1&playsinline=1",
     blocks: [
       {
         type: "points",
@@ -180,6 +183,7 @@ export const LESSONS: Lesson[] = [
     title: "Communicating with global teams",
     intro:
       "The written and spoken habits that separate a candidate who reads as ready from one who reads as untested, in Slack, email and on camera.",
+    videoUrl: "https://www.youtube.com/embed/ejqoa1CePV4?rel=0&modestbranding=1&playsinline=1",
     blocks: [
       {
         type: "points",
@@ -224,6 +228,8 @@ export const LESSONS: Lesson[] = [
     ],
     closing:
       "This is the only module with a deliverable — it's what the facilitator reviews before Day 2 begins.",
+    assignmentPrompt:
+      "Paste your rewritten CV summary, your updated LinkedIn headline and About section, and the one quantified achievement you wrote today.",
   },
   {
     day: 2,
@@ -329,6 +335,8 @@ export const LESSONS: Lesson[] = [
     ],
     closing:
       "This becomes the actual routine you run once you're placed — not a theoretical exercise.",
+    assignmentPrompt:
+      "Share your weekly overlap schedule, your contingency plan for power or connectivity loss, and your daily status-update template.",
   },
   {
     day: 3,
@@ -425,6 +433,8 @@ export const LESSONS: Lesson[] = [
     ],
     closing:
       "This is the readiness check DeepTalent uses to confirm you're prepared for the live practical and, beyond it, real client work.",
+    assignmentPrompt:
+      "Submit your written culture-norms response, a link to your finished CV/LinkedIn, and your time-zone overlap exercise.",
   },
   {
     day: 3,
