@@ -12,6 +12,7 @@ import {
 import { ConsentBot } from "@/components/site/consent-bot";
 import { YouTubePopup } from "@/components/site/youtube-popup";
 import { NyscFloatingTab } from "@/components/site/nysc-floating-tab";
+import { TrainingLiveBanner } from "@/components/site/training-live-banner";
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
@@ -49,9 +50,11 @@ function useIsDesktop(breakpoint = 1024) {
    ROOT
 ═══════════════════════════════════════════════════════ */
 export default function Home() {
+  const [bannerOpen, setBannerOpen] = useState(true);
   return (
     <main className="bg-white text-gray-900 overflow-x-clip">
-      <Navbar />
+      <TrainingLiveBanner open={bannerOpen} onClose={() => setBannerOpen(false)} />
+      <Navbar hasBanner={bannerOpen} />
       <Hero />
       <SupportingStatement />
       <TrustedBy />
@@ -280,7 +283,7 @@ function SolutionLifecycle() {
   );
 }
 
-/* ════════════════════════════════════════════════════
+/* ═════════════════════���══════════════════════════════
    PLATFORM PILLARS — the connected system
 ══��════════════════════════════════════������═══════════════ */
 function PlatformPillars() {
@@ -535,7 +538,7 @@ function FinalCTA() {
 /* ════════════════════════════════════════════════════
    NAVBAR
 ═══════════════════════════════════════════════════════ */
-function Navbar() {
+function Navbar({ hasBanner = false }: { hasBanner?: boolean }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -555,7 +558,9 @@ function Navbar() {
 
   return (
     <nav
-      className={`fixed top-4 left-1/2 z-50 w-[92%] max-w-7xl -translate-x-1/2 flex items-center justify-between rounded-2xl px-5 py-3 md:px-8 transition-all duration-300 border border-white/20 ${
+      className={`fixed left-1/2 z-50 w-[92%] max-w-7xl -translate-x-1/2 flex items-center justify-between rounded-2xl px-5 py-3 md:px-8 transition-all duration-300 border border-white/20 ${
+        hasBanner && !scrolled ? "top-16" : "top-4"
+      } ${
         scrolled
           ? "bg-[#3B5BDB]/90 backdrop-blur-xl shadow-[0_12px_40px_rgba(59,91,219,0.45)]"
           : "bg-[#3B5BDB]/75 backdrop-blur-lg shadow-[0_8px_32px_rgba(59,91,219,0.30)]"
@@ -2226,7 +2231,7 @@ function HumanLayer() {
 
 /* ════════════════════════════════════════════════════
    TESTIMONIALS
-═══════════════════════════════════════════════════════ */
+═══════════════════════════════════��═══════════════════ */
 function TestimonialCarousel() {
   const testimonials = [
     { id: "t1", quote: "DeepTalent transformed the way I run my business. The support they matched me with was trained, proactive, and integrated into my workflow from day one. The calibre of the professional and the structure around the placement is what impressed me most.", name: "Dianitte Erilus", location: "Orlando, Florida, USA", title: "Founder & Operations Lead", initials: "DE", rating: 5 },

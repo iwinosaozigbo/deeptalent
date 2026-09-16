@@ -298,6 +298,29 @@ function LessonView({
 
             {unlocked ? (
               <>
+                {lesson.videoUrl && (
+                  <div className="mt-8">
+                    <div className="mb-3 flex items-center gap-2">
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-red-600 px-3 py-1 text-xs font-semibold text-white">
+                        <span className="relative flex size-2">
+                          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white/80" />
+                          <span className="relative inline-flex size-2 rounded-full bg-white" />
+                        </span>
+                        Lesson is live
+                      </span>
+                      <span className="text-xs font-medium text-gray-400">Watch the full recorded session</span>
+                    </div>
+                    <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-gray-100 bg-black shadow-sm">
+                      <iframe
+                        src={lesson.videoUrl}
+                        title={lesson.title}
+                        className="absolute inset-0 size-full"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowFullScreen
+                      />
+                    </div>
+                  </div>
+                )}
                 {lesson.blocks.map((block, i) =>
                   block.type === "points" ? (
                     <div key={i} className="mt-8 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">

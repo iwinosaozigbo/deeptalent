@@ -64,7 +64,8 @@ export type SegmentKey =
   | "talents"
   | "approved_talents"
   | "companies"
-  | "leads";
+  | "leads"
+  | "training_registrants";
 
 export const SEGMENTS: { key: SegmentKey; label: string; description: string }[] = [
   { key: "all_users", label: "All users", description: "Everyone with a profile & email" },
@@ -72,6 +73,7 @@ export const SEGMENTS: { key: SegmentKey; label: string; description: string }[]
   { key: "approved_talents", label: "Approved talent", description: "Talents with an approved application" },
   { key: "companies", label: "Companies", description: "Company accounts & inquiry contacts" },
   { key: "leads", label: "Contact leads", description: "People who used the contact form" },
+  { key: "training_registrants", label: "Training registrants", description: "Everyone signed up for the Global Workforce Ready course" },
 ];
 
 export type Recipient = { email: string; name: string | null };
@@ -127,6 +129,18 @@ export async function resolveSegment(
       .not("email", "is", null)
       .limit(5000);
     for (const r of data ?? []) out.push({ email: r.email, name: r.name });
+  }
+
+  if (segment === "training_registrants") {
+    // Anyone signed up for the Global Workforce Ready course: they either
+    // picked a training track at signup or have already paid to enrol.
+    const { data } = await service
+      .from("profiles")
+      .select("email, full_name, nysc_track, nysc_course_paid_at")
+      .not("email", "is", null)
+      .or("nysc_track.not.is.null,nysc_course_paid_at.not.is.null")
+      .limit(5000);
+    for (const p of data ?? []) out.push({ email: p.email, name: p.full_name });
   }
 
   return dedupeByEmail(out);
