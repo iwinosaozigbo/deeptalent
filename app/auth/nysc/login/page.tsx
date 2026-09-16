@@ -1,11 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Suspense, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { NyscAuthShell } from "@/components/auth/nysc-auth-shell";
-import { resolveNyscLogin, getNyscDestination } from "@/app/auth/actions";
+import { resolveNyscLogin } from "@/app/auth/actions";
 import { Loader2 } from "lucide-react";
 
 const STATE_CODE_PATTERN = /^[A-Z]{2}\/\d{2}[A-Z]?\/\d{3,5}$/;
@@ -14,7 +13,6 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 type LoginMode = "stateCode" | "email";
 
 function NyscLoginForm() {
-  const router = useRouter();
   const [mode, setMode] = useState<LoginMode>("stateCode");
   const [stateCode, setStateCode] = useState("");
   const [email, setEmail] = useState("");
@@ -47,62 +45,75 @@ function NyscLoginForm() {
     return signInError;
   }
 
+  // Resolve the corps-member pathway destination from the freshly created
+  // session on the CLIENT. Reading it via a server action here races the
+  // auth-cookie propagation and can return the login page, so we look up the
+  // profile directly with the client we just authenticated.
+  async function resolveDestinationClientSide(): Promise<string> {
+    const supabase = createClient();
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData.user) return "/nysc/roles";
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("nysc_track")
+      .eq("id", userData.user.id)
+      .maybeSingle();
+    return profile?.nysc_track === "training" ? "/nysc/training" : "/nysc/roles";
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setLoading(true);
 
-    if (mode === "email") {
-      // No call-up number / state code on file — sign in with email directly,
-      // then resolve the pathway destination from the session server-side.
-      const normalizedEmail = email.trim().toLowerCase();
-      if (!EMAIL_PATTERN.test(normalizedEmail)) {
-        setError("Enter a valid email address.");
-        setLoading(false);
+    try {
+      if (mode === "email") {
+        // No call-up number / state code on file — sign in with email directly.
+        const normalizedEmail = email.trim().toLowerCase();
+        if (!EMAIL_PATTERN.test(normalizedEmail)) {
+          setError("Enter a valid email address.");
+          return;
+        }
+
+        const signInError = await signInWithFallback(normalizedEmail);
+        if (signInError) {
+          setError("Invalid email or password.");
+          return;
+        }
+
+        const destination = await resolveDestinationClientSide();
+        // Hard navigation so the protected /nysc/* page reliably sees the
+        // freshly set session cookie instead of bouncing back to login.
+        window.location.assign(destination);
         return;
       }
 
-      const signInError = await signInWithFallback(normalizedEmail);
+      const normalized = stateCode.trim().toUpperCase();
+      if (!STATE_CODE_PATTERN.test(normalized)) {
+        setError("Enter a valid post-NYSC state code, e.g. OG/24B/1234.");
+        return;
+      }
+
+      // Corps members authenticate by state code: resolve the linked email first,
+      // then complete a normal Supabase password sign-in with that email.
+      const resolved = await resolveNyscLogin(normalized);
+      if ("error" in resolved) {
+        setError(resolved.error);
+        return;
+      }
+
+      const { email: resolvedEmail, destination } = resolved;
+      const signInError = await signInWithFallback(resolvedEmail);
       if (signInError) {
-        setError("Invalid email or password.");
-        setLoading(false);
+        // Genericize to avoid leaking which state codes exist.
+        setError("Invalid state code or password.");
         return;
       }
 
-      const destination = await getNyscDestination();
-      router.push(destination);
-      router.refresh();
-      return;
-    }
-
-    const normalized = stateCode.trim().toUpperCase();
-    if (!STATE_CODE_PATTERN.test(normalized)) {
-      setError("Enter a valid post-NYSC state code, e.g. OG/24B/1234.");
+      window.location.assign(destination);
+    } finally {
       setLoading(false);
-      return;
     }
-
-    // Corps members authenticate by state code: resolve the linked email first,
-    // then complete a normal Supabase password sign-in with that email.
-    const resolved = await resolveNyscLogin(normalized);
-    if ("error" in resolved) {
-      setError(resolved.error);
-      setLoading(false);
-      return;
-    }
-
-    const { email: resolvedEmail, destination } = resolved;
-    const signInError = await signInWithFallback(resolvedEmail);
-
-    if (signInError) {
-      // Genericize to avoid leaking which state codes exist.
-      setError("Invalid state code or password.");
-      setLoading(false);
-      return;
-    }
-
-    router.push(destination);
-    router.refresh();
   }
 
   return (
