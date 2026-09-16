@@ -112,7 +112,7 @@ export const LESSONS: Lesson[] = [
     title: "The global remote market: where a corps member fits",
     intro:
       "What global employers actually screen for, how to present a profile that passes, and how to communicate like someone who has already worked internationally.",
-    videoUrl: "https://www.youtube.com/embed/tOWriifv4VY",
+    videoUrl: "https://www.youtube.com/embed/tOWriifv4VY?rel=0&modestbranding=1&playsinline=1",
     blocks: [
       {
         type: "points",
