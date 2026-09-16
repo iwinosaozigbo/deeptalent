@@ -68,9 +68,18 @@ export function NyscPromoModal() {
           <X className="size-5" />
         </button>
 
+        <span className="absolute left-1/2 top-3 z-10 flex -translate-x-1/2 items-center gap-2 rounded-full bg-red-600 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-white shadow-lg">
+          <span className="relative flex size-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white/80" />
+            <span className="relative inline-flex size-2 rounded-full bg-white" />
+          </span>
+          Training is live now
+        </span>
+
         <button
           type="button"
           onClick={goToNysc}
+          aria-label="The Global Workforce Ready training is live. Sign in or create an account to enrol."
           className="block w-full overflow-hidden rounded-2xl shadow-2xl ring-1 ring-white/10 transition-transform hover:scale-[1.01]"
         >
           <img

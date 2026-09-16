@@ -97,6 +97,8 @@ export type Lesson = {
   title: string;
   minutes: number;
   intro: string;
+  /** YouTube embed URL for the recorded lesson, when the video is live. */
+  videoUrl?: string;
   blocks: LessonBlock[];
   closing: string;
 };
@@ -110,6 +112,7 @@ export const LESSONS: Lesson[] = [
     title: "The global remote market: where a corps member fits",
     intro:
       "What global employers actually screen for, how to present a profile that passes, and how to communicate like someone who has already worked internationally.",
+    videoUrl: "https://www.youtube.com/embed/tOWriifv4VY",
     blocks: [
       {
         type: "points",
