@@ -14,6 +14,8 @@ export const COURSE = {
   summary:
     "A three-day course on landing — and keeping — a remote role with a UK, US, Canadian or Australian employer. Two hours a day, plus a one-hour live practical on Google Meet.",
   priceNgn: 5000,
+  /** Course introduction video — free to watch for everyone, enrolled or not. */
+  introVideoUrl: "https://www.youtube.com/embed/SD7_tLaYYvU?rel=0&modestbranding=1&playsinline=1",
   stats: [
     { value: "3", label: "days" },
     { value: "7 hrs", label: "in total" },

@@ -150,6 +150,27 @@ function NyscTrainingViewInner() {
           </div>
         </div>
 
+        {/* Introduction video */}
+        {COURSE.introVideoUrl && (
+          <div className="border-b border-gray-100 px-7 py-8 md:px-10">
+            <div className="mb-3 flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#0F7A3D] px-3 py-1 text-xs font-semibold text-white">
+                <PlayCircle className="size-3.5" /> Start here
+              </span>
+              <span className="text-xs font-medium text-gray-400">Course introduction — free to watch</span>
+            </div>
+            <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-gray-100 bg-black shadow-sm">
+              <iframe
+                src={COURSE.introVideoUrl}
+                title={`${COURSE.title} — introduction`}
+                className="absolute inset-0 size-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
+            </div>
+          </div>
+        )}
+
         {/* Curriculum */}
         <div className="px-7 py-8 md:px-10">
           <h3 className="text-sm font-semibold uppercase tracking-widest text-[#0F7A3D]">Programme at a glance</h3>
