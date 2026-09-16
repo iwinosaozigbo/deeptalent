@@ -13,7 +13,7 @@ export const COURSE = {
   tagline: "Work global. Stay in Nigeria.",
   summary:
     "A three-day course on landing — and keeping — a remote role with a UK, US, Canadian or Australian employer. Two hours a day, plus a one-hour live practical on Google Meet.",
-  priceNgn: 2000,
+  priceNgn: 5000,
   stats: [
     { value: "3", label: "days" },
     { value: "7 hrs", label: "in total" },

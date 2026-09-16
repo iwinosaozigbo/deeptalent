@@ -167,9 +167,12 @@ export function PlacementsTab() {
   function fillTalent(talentId: string) {
     const t = approvedTalent.find((r) => r.user_id === talentId || r.id === talentId);
     if (!t) return;
+    // Only `user_id` is a valid profiles.id — the FK target. `t.id` is the
+    // submission row id and must never be used as talent_user_id, or the
+    // insert/update will violate placements_talent_user_id_fkey.
     setForm((f) => ({
       ...f,
-      talent_user_id: t.user_id || t.id,
+      talent_user_id: t.user_id || "",
       talent_name: t.full_name,
       talent_email: t.email,
       talent_role: t.specialization || t.role_category || f.talent_role,
