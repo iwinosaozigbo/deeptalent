@@ -15,6 +15,10 @@
     {
       "path": "/api/cron/external-jobs",
       "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/training-reminders",
+      "schedule": "0 8 * * *"
     }
   ]
 }
