@@ -15,6 +15,7 @@ import {
   GraduationCap,
   XCircle,
   BookOpen,
+  MessageCircle,
 } from "lucide-react";
 import {
   COURSE,
@@ -31,6 +32,7 @@ import { AssignmentSubmission } from "@/components/nysc/assignment-submission";
 const ngn = (n: number) => `NGN ${n.toLocaleString("en-NG")}`;
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 const FREE_CODE = "1.1";
+const WHATSAPP_SUPPORT_URL = "https://chat.whatsapp.com/Fzdpc1c8NHI5S6xZD0xOyg?s=cl&p=i&mlu=4&ilr=4";
 
 const UPCOMING = [
   { title: "Finance & Accounting Deep-Dive", desc: "IFRS, month-end and FP&A for global SME finance teams.", tag: "Finance" },
@@ -223,6 +225,29 @@ function NyscTrainingViewInner() {
 
       <CertificateCard />
       <StudyGuideCard />
+
+      {/* WhatsApp support group */}
+      <a
+        href={WHATSAPP_SUPPORT_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-6 flex flex-col items-start justify-between gap-4 rounded-2xl border border-gray-100 bg-[#F0FDF4] p-5 shadow-sm transition-colors hover:bg-[#e6faec] sm:flex-row sm:items-center"
+      >
+        <div className="flex items-center gap-3">
+          <span className="grid size-11 shrink-0 place-items-center rounded-full bg-[#25D366] text-white">
+            <MessageCircle className="size-5" />
+          </span>
+          <div>
+            <p className="font-semibold text-gray-900">Join the cohort support group</p>
+            <p className="mt-0.5 text-sm text-gray-500">
+              Get lesson reminders, ask questions and connect with other learners on WhatsApp.
+            </p>
+          </div>
+        </div>
+        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#25D366] px-4 py-2 text-sm font-semibold text-white">
+          Join on WhatsApp <ArrowRight className="size-4" />
+        </span>
+      </a>
 
       {/* Learning outcomes */}
       <div className="mt-10">
@@ -478,6 +503,16 @@ function LessonView({
                   className="mt-4 flex items-center gap-1.5 rounded-lg border border-gray-100 px-3 py-2 text-xs font-medium text-[#0F7A3D] transition-colors hover:bg-[#F4FBF6]"
                 >
                   <BookOpen className="size-3.5" /> Download study guide (PDF)
+                </a>
+              )}
+              {unlocked && (
+                <a
+                  href={WHATSAPP_SUPPORT_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-2 flex items-center gap-1.5 rounded-lg border border-gray-100 px-3 py-2 text-xs font-medium text-[#0F7A3D] transition-colors hover:bg-[#F4FBF6]"
+                >
+                  <MessageCircle className="size-3.5" /> Join the support group (WhatsApp)
                 </a>
               )}
             </div>
