@@ -64,7 +64,7 @@ export async function POST() {
 
   if (!profile.nysc_course_paid_at && !profile.nysc_course_completed_at) {
     return NextResponse.json(
-      { error: "Enrol in the course (NGN 2,000) before confirming completion." },
+      { error: "Enrol in the course (NGN 5,000) before confirming completion." },
       { status: 403 }
     );
   }

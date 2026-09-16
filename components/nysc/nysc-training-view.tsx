@@ -370,7 +370,7 @@ function LessonView({
                 </span>
                 <p className="mt-4 font-semibold text-gray-900">This module is part of the full course</p>
                 <p className="mt-1.5 text-sm leading-relaxed text-gray-500">
-                  Lesson 1.1 is free to preview. Enrol for NGN 2,000 to unlock this module and the other eleven,
+                  Lesson 1.1 is free to preview. Enrol for NGN 5,000 to unlock this module and the other eleven,
                   plus the live practical and your certificate.
                 </p>
                 <div className="mt-5 flex justify-center">

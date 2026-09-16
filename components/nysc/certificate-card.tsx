@@ -90,7 +90,7 @@ export function CertificateCard() {
                     }.`
                 : enrolled
                   ? "Once you've completed the live practical and all modules, confirm below to receive your DeepTalent certificate by email."
-                  : "Enrol in the post-NYSC course (NGN 2,000) above to unlock the certificate once you finish."}
+                  : "Enrol in the post-NYSC course (NGN 5,000) above to unlock the certificate once you finish."}
             </p>
             {completed && (
               <p className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-[#0F7A3D]">

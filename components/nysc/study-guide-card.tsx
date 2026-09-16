@@ -38,7 +38,7 @@ export function StudyGuideCard() {
             <p className="mt-1 max-w-md text-sm leading-relaxed text-gray-500">
               {enrolled
                 ? "The full PDF companion to the course — keep it for reference during the live practical and after you finish."
-                : "Enrol in the post-NYSC course (NGN 2,000) to unlock the downloadable PDF study guide."}
+                : "Enrol in the post-NYSC course (NGN 5,000) to unlock the downloadable PDF study guide."}
             </p>
           </div>
         </div>

@@ -11,7 +11,7 @@ interface EnrolmentStatus {
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
 /**
- * Kicks off a Flutterwave checkout for the NGN 2,000 post-NYSC course fee.
+ * Kicks off a Flutterwave checkout for the NGN 5,000 post-NYSC course fee.
  * Shared between the catalogue header and the end-of-lesson-1 CTA so both
  * read the same enrolment status.
  */
@@ -62,7 +62,7 @@ export function EnrolButton({ variant = "primary" }: { variant?: "primary" | "ou
         }
       >
         {starting && <Loader2 className="size-4 animate-spin" />}
-        Enrol — NGN 2,000
+        Enrol — NGN 5,000
       </button>
       {error && <p className="text-xs font-medium text-red-500">{error}</p>}
     </div>
