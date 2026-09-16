@@ -26,6 +26,7 @@ import {
 import { CertificateCard } from "@/components/nysc/certificate-card";
 import { StudyGuideCard } from "@/components/nysc/study-guide-card";
 import { EnrolButton } from "@/components/nysc/enrol-button";
+import { AssignmentSubmission } from "@/components/nysc/assignment-submission";
 
 const ngn = (n: number) => `NGN ${n.toLocaleString("en-NG")}`;
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
@@ -377,6 +378,10 @@ function LessonView({
                 <div className="mt-8 rounded-2xl border-l-4 border-[#0F7A3D] bg-[#F4FBF6] p-5">
                   <p className="text-sm leading-relaxed text-gray-700 text-pretty">{lesson.closing}</p>
                 </div>
+
+                {lesson.assignmentPrompt && (
+                  <AssignmentSubmission lessonCode={lesson.code} prompt={lesson.assignmentPrompt} />
+                )}
 
                 {lesson.code === FREE_CODE && !enrolled ? (
                   <div className="mt-8 flex items-center justify-between rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">

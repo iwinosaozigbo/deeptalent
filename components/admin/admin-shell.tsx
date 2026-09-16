@@ -23,6 +23,7 @@ import { SocialTab } from "@/components/admin/social-tab";
 import { OutboundTab } from "@/components/admin/outbound-tab";
 import { CorpsMembersTab } from "@/components/admin/corps-members-tab";
 import { FinancesTab } from "@/components/admin/finances-tab";
+import { AssignmentsTab } from "@/components/admin/assignments-tab";
 import { useAdminMe } from "@/components/admin/use-admin-me";
 import {
   Activity,
@@ -31,6 +32,7 @@ import {
   CalendarDays,
   CheckSquare,
   ChevronRight,
+  ClipboardList,
   FileText,
   Folder,
   Globe,
@@ -88,7 +90,8 @@ type Tab =
   | "social"
   | "outbound"
   | "placements"
-  | "finances";
+  | "finances"
+  | "assignments";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -162,6 +165,13 @@ export function AdminShell({
   );
   const corpsCount = nyscData?.summary?.total ?? 0;
 
+  const { data: assignmentsData } = useSWR<{ rows: any[] }>(
+    "/api/admin/assignments",
+    fetcher,
+    { refreshInterval: 60_000 }
+  );
+  const pendingAssignments = (assignmentsData?.rows ?? []).filter((r) => r?.status === "submitted").length;
+
   const appCount = appData?.rows?.length ?? applications.length;
   const inqCount = inqData?.rows?.length ?? inquiries.length;
   const approvedCount = (appData?.rows ?? applications).filter(
@@ -175,6 +185,13 @@ export function AdminShell({
       items: [
         { id: "users" as Tab, label: "Users", icon: Users, count: userCount },
         { id: "corps_members" as Tab, label: "Corps Members", icon: ShieldCheck, count: corpsCount > 0 ? corpsCount : null },
+        {
+          id: "assignments" as Tab,
+          label: "Assignments",
+          icon: ClipboardList,
+          count: pendingAssignments > 0 ? pendingAssignments : null,
+          urgent: pendingAssignments > 0,
+        },
         { id: "applications" as Tab, label: "Applications", icon: FileText, count: appCount },
         { id: "approved_talent" as Tab, label: "Approved Talent", icon: UserCheck, count: approvedCount },
         { id: "inquiries" as Tab, label: "Company Inquiries", icon: Building2, count: inqCount },
@@ -345,6 +362,7 @@ export function AdminShell({
           <div className="max-w-6xl mx-auto">
             {tab === "users" && <UsersTab />}
             {tab === "corps_members" && <CorpsMembersTab />}
+            {tab === "assignments" && <AssignmentsTab />}
             {tab === "finances" && <FinancesTab />}
             {tab === "placements" && <PlacementsTab />}
             {tab === "outbound" && <OutboundTab />}
