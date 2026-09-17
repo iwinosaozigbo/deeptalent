@@ -238,6 +238,7 @@ export const LESSONS: Lesson[] = [
     title: "Global work culture decoded",
     intro:
       "The unwritten rules of UK, US, Canadian and Australian workplaces — ownership, documentation and how disagreement is actually handled.",
+    videoUrl: "https://www.youtube.com/embed/88b-l1XHRYI?rel=0&modestbranding=1&playsinline=1",
     blocks: [
       {
         type: "points",
@@ -269,6 +270,7 @@ export const LESSONS: Lesson[] = [
     title: "Time zones & the remote day",
     intro:
       "Converting West Africa Time to any client zone instantly, and structuring a day that protects the hours that actually overlap.",
+    videoUrl: "https://www.youtube.com/embed/CAXHGuqBwhU?rel=0&modestbranding=1&playsinline=1",
     blocks: [
       {
         type: "points",
@@ -300,6 +302,7 @@ export const LESSONS: Lesson[] = [
     title: "Time management that survives NEPA",
     intro:
       "Building a work routine that holds up against power cuts, network drops and shared household demands — without your client ever noticing.",
+    videoUrl: "https://www.youtube.com/embed/gLkaZ6_eGT0?rel=0&modestbranding=1&playsinline=1",
     blocks: [
       {
         type: "points",

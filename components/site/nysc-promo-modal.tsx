@@ -12,9 +12,14 @@ const SESSION_KEY = "deeptalent_nysc_promo_seen";
  * routes into the post-NYSC signup flow (which lands on the NyscShell
  * training page after verification); the X closes without navigating.
  */
-export function NyscPromoModal() {
+export function NyscPromoModal({ onDismissed }: { onDismissed?: () => void }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+
+  const close = () => {
+    setOpen(false);
+    onDismissed?.();
+  };
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -43,7 +48,7 @@ export function NyscPromoModal() {
   if (!open) return null;
 
   const goToNysc = () => {
-    setOpen(false);
+    close();
     router.push("/auth/nysc?track=training");
   };
 
@@ -53,7 +58,7 @@ export function NyscPromoModal() {
       aria-modal="true"
       aria-label="Get Global Workforce Ready — post-NYSC course"
       className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm animate-in fade-in duration-300"
-      onClick={() => setOpen(false)}
+      onClick={close}
     >
       <div
         className="relative w-full max-w-sm animate-in zoom-in-95 duration-300"
@@ -61,7 +66,7 @@ export function NyscPromoModal() {
       >
         <button
           type="button"
-          onClick={() => setOpen(false)}
+          onClick={close}
           aria-label="Close"
           className="absolute -top-3 -right-3 z-10 grid size-9 place-items-center rounded-full bg-white text-gray-900 shadow-lg transition-transform hover:scale-105"
         >
