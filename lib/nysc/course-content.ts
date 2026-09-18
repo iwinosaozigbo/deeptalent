@@ -302,7 +302,7 @@ export const LESSONS: Lesson[] = [
     title: "Time management that survives NEPA",
     intro:
       "Building a work routine that holds up against power cuts, network drops and shared household demands — without your client ever noticing.",
-    videoUrl: "https://www.youtube.com/embed/gLkaZ6_eGT0?rel=0&modestbranding=1&playsinline=1",
+    videoUrl: "https://www.youtube.com/embed/N-FQf-VymUQ?rel=0&modestbranding=1&playsinline=1",
     blocks: [
       {
         type: "points",
@@ -348,6 +348,7 @@ export const LESSONS: Lesson[] = [
     title: "Your AI toolkit",
     intro:
       "The AI tools global teams already expect you to know — for drafting, summarising and checking your own work faster.",
+    videoUrl: "https://www.youtube.com/embed/M66VkRNrAjk?rel=0&modestbranding=1&playsinline=1",
     blocks: [
       {
         type: "points",
@@ -370,6 +371,7 @@ export const LESSONS: Lesson[] = [
     title: "AI in your function, responsibly",
     intro:
       "Using AI tools without exposing client data, and knowing exactly where human judgement still has to lead.",
+    videoUrl: "https://www.youtube.com/embed/ZDmyPnCuiM0?rel=0&modestbranding=1&playsinline=1",
     blocks: [
       {
         type: "points",
@@ -392,6 +394,7 @@ export const LESSONS: Lesson[] = [
     title: "Vetting, interviews & offers",
     intro:
       "DeepTalent's assessment stages end-to-end, how to prepare STAR answers, run a professional video setup, and spot a job scam before it costs you.",
+    videoUrl: "https://www.youtube.com/embed/9J7ASu0mPi0?rel=0&modestbranding=1&playsinline=1",
     blocks: [
       {
         type: "points",
@@ -423,6 +426,7 @@ export const LESSONS: Lesson[] = [
     title: "Capstone & readiness check",
     intro:
       "A short, graded check across the three days' material, plus a final review of your profile before the live practical.",
+    videoUrl: "https://www.youtube.com/embed/PDDXEdqCbEo?rel=0&modestbranding=1&playsinline=1",
     blocks: [
       {
         type: "points",
