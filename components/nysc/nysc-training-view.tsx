@@ -16,6 +16,7 @@ import {
   XCircle,
   BookOpen,
   MessageCircle,
+  Video,
 } from "lucide-react";
 import {
   COURSE,
@@ -221,6 +222,29 @@ function NyscTrainingViewInner() {
             ))}
           </div>
         </div>
+      </div>
+
+      {/* Live session */}
+      <div className="mt-6 flex flex-col items-start justify-between gap-4 rounded-2xl border border-[#0F7A3D]/20 bg-[#F0FDF4] p-5 shadow-sm sm:flex-row sm:items-center">
+        <div className="flex items-center gap-3">
+          <span className="grid size-11 shrink-0 place-items-center rounded-full bg-[#0F7A3D] text-white">
+            <Video className="size-5" />
+          </span>
+          <div>
+            <p className="font-semibold text-gray-900">DTP Get Workforce Ready Live Session</p>
+            <p className="mt-0.5 text-sm text-gray-500">
+              1:00pm – 2:00pm · 18th September 2026
+            </p>
+          </div>
+        </div>
+        <a
+          href="https://meet.google.com/arc-nhif-gkg"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#0F7A3D] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#0d6a35]"
+        >
+          Join on Google Meet <ArrowRight className="size-4" />
+        </a>
       </div>
 
       <CertificateCard />
