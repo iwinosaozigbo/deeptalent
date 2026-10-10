@@ -3,6 +3,7 @@
 import { useState } from "react";
 import useSWR from "swr";
 import { Award, Download, Loader2, ShieldCheck } from "lucide-react";
+import { useCoursePriceNgn } from "@/lib/nysc/use-course-price";
 
 interface CertificateStatus {
   completed: boolean;
@@ -18,6 +19,7 @@ interface CertificateStatus {
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
 export function CertificateCard() {
+  const coursePriceNgn = useCoursePriceNgn();
   const { data, isLoading, mutate } = useSWR<CertificateStatus>("/api/nysc/certificate", fetcher);
   const [submitting, setSubmitting] = useState(false);
   const [confirming, setConfirming] = useState(false);
@@ -90,7 +92,7 @@ export function CertificateCard() {
                     }.`
                 : enrolled
                   ? "Once you've completed the live practical and all modules, confirm below to receive your DeepTalent certificate by email."
-                  : "Enrol in the post-NYSC course (NGN 5,000) above to unlock the certificate once you finish."}
+                  : `Enrol in the post-NYSC course (NGN ${coursePriceNgn.toLocaleString("en-NG")}) above to unlock the certificate once you finish.`}
             </p>
             {completed && (
               <p className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-[#0F7A3D]">

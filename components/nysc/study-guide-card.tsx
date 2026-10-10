@@ -3,6 +3,7 @@
 import useSWR from "swr";
 import { BookOpen, Download, Loader2, Lock } from "lucide-react";
 import { EnrolButton } from "@/components/nysc/enrol-button";
+import { useCoursePriceNgn } from "@/lib/nysc/use-course-price";
 
 interface CertificateStatus {
   enrolled: boolean;
@@ -11,6 +12,7 @@ interface CertificateStatus {
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
 export function StudyGuideCard() {
+  const coursePriceNgn = useCoursePriceNgn();
   const { data, isLoading } = useSWR<CertificateStatus>("/api/nysc/certificate", fetcher);
   const enrolled = Boolean(data?.enrolled);
 
@@ -38,7 +40,7 @@ export function StudyGuideCard() {
             <p className="mt-1 max-w-md text-sm leading-relaxed text-gray-500">
               {enrolled
                 ? "The full PDF companion to the course — keep it for reference during the live practical and after you finish."
-                : "Enrol in the post-NYSC course (NGN 5,000) to unlock the downloadable PDF study guide."}
+                : `Enrol in the post-NYSC course (NGN ${coursePriceNgn.toLocaleString("en-NG")}) to unlock the downloadable PDF study guide.`}
             </p>
           </div>
         </div>

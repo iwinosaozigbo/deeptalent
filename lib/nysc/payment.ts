@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { COURSE } from "@/lib/nysc/course-content";
+import { getCoursePriceNgn } from "@/lib/nysc/course-content";
 import { initializeFlutterwavePayment, verifyFlutterwaveTransaction } from "@/lib/flutterwave";
 import { sendPaymentReceipt } from "@/lib/email/receipt";
 
@@ -38,11 +38,12 @@ export async function startCoursePayment(
 ): Promise<StartPaymentResult> {
   const sb = serviceClient();
   const txRef = generateTxRef(userId);
+  const coursePriceNgn = getCoursePriceNgn();
 
   const { error: insertError } = await sb.from("nysc_course_payments").insert({
     tx_ref: txRef,
     user_id: userId,
-    amount_ngn: COURSE.priceNgn,
+    amount_ngn: coursePriceNgn,
     status: "pending",
   });
 
@@ -52,7 +53,7 @@ export async function startCoursePayment(
 
   const result = await initializeFlutterwavePayment({
     txRef,
-    amount: COURSE.priceNgn,
+    amount: coursePriceNgn,
     redirectUrl: `${redirectOrigin}/api/nysc/payment/callback`,
     customer: { email, name: fullName },
     title: "DeepTalent — Get Global Workforce Ready",

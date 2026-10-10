@@ -78,7 +78,7 @@ export function NyscPromoModal({ onDismissed }: { onDismissed?: () => void }) {
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white/80" />
             <span className="relative inline-flex size-2 rounded-full bg-white" />
           </span>
-          Training is live now
+          October cohort · Registration open
         </span>
 
         <button
@@ -88,8 +88,8 @@ export function NyscPromoModal({ onDismissed }: { onDismissed?: () => void }) {
           className="block w-full overflow-hidden rounded-2xl shadow-2xl ring-1 ring-white/10 transition-transform hover:scale-[1.01]"
         >
           <img
-            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-dZhtb4WeAhgEdPXcuu2keN471qpdl1.png"
-            alt="DeepTalent Platform presents: Get Global Workforce Ready in just 3 days. A post-NYSC Global Work Ready Course for post-NYSC graduates seeking remote employment. Click to apply."
+            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/WhatsApp%20Image%202026-09-19%20at%2022.45.32-at7NZN0A2usXcf49NdHBo3fcW4XhSw.jpeg"
+            alt="DeepTalent Get Global Workforce Ready: virtual cohort October 28–30, 2026, 11am–1pm. Early bird NGN 3,500; late registration NGN 7,000 from October 25, 2026."
             className="block max-h-[85vh] w-full object-contain"
           />
         </button>

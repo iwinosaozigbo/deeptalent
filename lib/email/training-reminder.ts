@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAndSendCampaign } from "@/lib/email/send";
 import { resolveSegment } from "@/lib/email/mass";
+import { getCoursePriceNgn } from "@/lib/nysc/course-content";
 
 const APP_URL = (process.env.NEXT_PUBLIC_APP_URL || "https://www.deeptalentplatform.com").replace(/\/$/, "");
 
@@ -16,7 +17,7 @@ function reminderBodyHtml(): string {
 The <strong>Get Global Workforce Ready</strong> course is now live. Lesson 1 — <em>The Global Remote Market</em> — is unlocked, and new modules are ready for you to work through at your own pace.
 </p>
 <p style="margin:0 0 14px;">
-Sign in to your DeepTalent dashboard to pick up where you left off. If you haven't completed your enrolment yet (NGN 5,000), you can finish it from the training page and jump straight into the recorded sessions.
+Sign in to your DeepTalent dashboard to pick up where you left off. If you haven't completed your enrolment yet (NGN ${getCoursePriceNgn().toLocaleString("en-NG")}), you can finish it from the training page and jump straight into the recorded sessions.
 </p>
 <table role="presentation" cellpadding="0" cellspacing="0" style="margin:22px 0;">
 <tr><td style="border-radius:8px;background:#3B5BDB;">
