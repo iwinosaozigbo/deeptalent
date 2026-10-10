@@ -3,6 +3,7 @@
 import { useState } from "react";
 import useSWR from "swr";
 import { CheckCircle2, Loader2 } from "lucide-react";
+import { useCoursePriceNgn } from "@/lib/nysc/use-course-price";
 
 interface EnrolmentStatus {
   enrolled: boolean;
@@ -11,11 +12,12 @@ interface EnrolmentStatus {
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
 /**
- * Kicks off a Flutterwave checkout for the NGN 5,000 post-NYSC course fee.
+ * Kicks off a Flutterwave checkout for the current post-NYSC course fee.
  * Shared between the catalogue header and the end-of-lesson-1 CTA so both
  * read the same enrolment status.
  */
 export function EnrolButton({ variant = "primary" }: { variant?: "primary" | "outline" }) {
+  const coursePriceNgn = useCoursePriceNgn();
   const { data, isLoading } = useSWR<EnrolmentStatus>("/api/nysc/certificate", fetcher);
   const [starting, setStarting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -62,7 +64,7 @@ export function EnrolButton({ variant = "primary" }: { variant?: "primary" | "ou
         }
       >
         {starting && <Loader2 className="size-4 animate-spin" />}
-        Enrol — NGN 5,000
+        Enrol — NGN {coursePriceNgn.toLocaleString("en-NG")}
       </button>
       {error && <p className="text-xs font-medium text-red-500">{error}</p>}
     </div>

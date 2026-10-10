@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getCoursePriceNgn } from "@/lib/nysc/course-content";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import { createClient } from "@supabase/supabase-js";
 import { generateCertificateNumber } from "@/lib/nysc/certificate";
@@ -65,7 +66,7 @@ export async function POST() {
 
   if (!profile.nysc_course_paid_at && !profile.nysc_course_completed_at) {
     return NextResponse.json(
-      { error: "Enrol in the course (NGN 5,000) before confirming completion." },
+      { error: `Enrol in the course (NGN ${getCoursePriceNgn().toLocaleString("en-NG")}) before confirming completion.` },
       { status: 403 }
     );
   }

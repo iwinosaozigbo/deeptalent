@@ -29,6 +29,7 @@ import { CertificateCard } from "@/components/nysc/certificate-card";
 import { StudyGuideCard } from "@/components/nysc/study-guide-card";
 import { EnrolButton } from "@/components/nysc/enrol-button";
 import { AssignmentSubmission } from "@/components/nysc/assignment-submission";
+import { useCoursePriceNgn } from "@/lib/nysc/use-course-price";
 
 const ngn = (n: number) => `NGN ${n.toLocaleString("en-NG")}`;
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
@@ -91,6 +92,7 @@ function PaymentBanner() {
 }
 
 function NyscTrainingViewInner() {
+  const coursePriceNgn = useCoursePriceNgn();
   const [activeCode, setActiveCode] = useState<string | null>(null);
   const { data } = useSWR<{ enrolled: boolean }>("/api/nysc/certificate", fetcher);
   const enrolled = Boolean(data?.enrolled);
@@ -129,8 +131,12 @@ function NyscTrainingViewInner() {
 
             <div className="shrink-0 rounded-2xl bg-white/10 p-5 text-center backdrop-blur">
               <p className="text-xs font-medium uppercase tracking-wide text-white/60">Enrolment</p>
-              <p className="mt-1 text-3xl font-extrabold text-white">{ngn(COURSE.priceNgn)}</p>
-              <p className="mt-0.5 text-xs text-white/60">one-off · certificate on pass</p>
+              <p className="mt-1 text-3xl font-extrabold text-white">{ngn(coursePriceNgn)}</p>
+              <p className="mt-0.5 text-xs text-white/60">
+                {coursePriceNgn === COURSE.earlyBirdPriceNgn
+                  ? "Early bird · NGN 7,000 from Oct 25"
+                  : "Late registration · one-off"}
+              </p>
               <button
                 onClick={() => setActiveCode(FREE_CODE)}
                 className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/20"
@@ -231,19 +237,17 @@ function NyscTrainingViewInner() {
             <Video className="size-5" />
           </span>
           <div>
-            <p className="font-semibold text-gray-900">DTP Get Workforce Ready Live Session</p>
+            <p className="font-semibold text-gray-900">Get Global Workforce Ready — October cohort</p>
             <p className="mt-0.5 text-sm text-gray-500">
-              1:00pm – 2:00pm · 18th September 2026
+              October 28–30, 2026 · 11:00am–1:00pm · Virtual
             </p>
           </div>
         </div>
         <a
-          href="https://meet.google.com/arc-nhif-gkg"
-          target="_blank"
-          rel="noopener noreferrer"
+          href="/auth/nysc?track=training"
           className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#0F7A3D] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#0d6a35]"
         >
-          Join on Google Meet <ArrowRight className="size-4" />
+          Register now <ArrowRight className="size-4" />
         </a>
       </div>
 
@@ -328,6 +332,7 @@ function LessonView({
   onBack: () => void;
   onSelect: (code: string) => void;
 }) {
+  const coursePriceNgn = useCoursePriceNgn();
   const index = LESSONS.findIndex((l) => l.code === code);
   const lesson = LESSONS[index] ?? LESSONS[0];
   const unlocked = enrolled || lesson.code === FREE_CODE;
@@ -468,7 +473,7 @@ function LessonView({
                 </span>
                 <p className="mt-4 font-semibold text-gray-900">This module is part of the full course</p>
                 <p className="mt-1.5 text-sm leading-relaxed text-gray-500">
-                  Lesson 1.1 is free to preview. Enrol for NGN 5,000 to unlock this module and the other eleven,
+                  Lesson 1.1 is free to preview. Enrol for {ngn(coursePriceNgn)} to unlock this module and the other eleven,
                   plus the live practical and your certificate.
                 </p>
                 <div className="mt-5 flex justify-center">

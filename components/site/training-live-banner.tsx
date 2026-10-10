@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { ArrowRight, X } from "lucide-react";
+import { useCoursePriceNgn } from "@/lib/nysc/use-course-price";
 
 /**
  * Slim, dismissible announcement bar shown at the very top of the home page
@@ -20,6 +21,7 @@ export function TrainingLiveBanner({
   onClose: () => void;
 }) {
   const router = useRouter();
+  const coursePriceNgn = useCoursePriceNgn();
 
   if (!open) return null;
 
@@ -29,7 +31,7 @@ export function TrainingLiveBanner({
         <button
           type="button"
           onClick={() => router.push("/auth/nysc?track=training")}
-          aria-label="The Global Workforce Ready training is live. Sign in or create an account to enrol."
+          aria-label={`October 28–30 Global Workforce Ready cohort registration is open. Current price NGN ${coursePriceNgn.toLocaleString("en-NG")}. Sign in or create an account to enrol.`}
           className="group flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 text-center text-xs font-medium sm:text-sm"
         >
           <span className="inline-flex items-center gap-2 rounded-full bg-red-600 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide">
@@ -37,11 +39,11 @@ export function TrainingLiveBanner({
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white/80" />
               <span className="relative inline-flex size-2 rounded-full bg-white" />
             </span>
-            Live now
+            Registration open
           </span>
           <span className="text-white/90">
-            Global Workforce Ready training is live — enrol for{" "}
-            <span className="font-semibold text-white">NGN 5,000</span>
+            October cohort: Oct 28–30, 2026 · enrol for{" "}
+            <span className="font-semibold text-white">NGN {coursePriceNgn.toLocaleString("en-NG")}</span>
           </span>
           <span className="inline-flex items-center gap-1 font-semibold text-[#8690FD] transition-colors group-hover:text-white">
             Enrol now

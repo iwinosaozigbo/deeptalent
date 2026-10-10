@@ -13,7 +13,9 @@ export const COURSE = {
   tagline: "Work global. Stay in Nigeria.",
   summary:
     "A three-day course on landing — and keeping — a remote role with a UK, US, Canadian or Australian employer. Two hours a day, plus a one-hour live practical on Google Meet.",
-  priceNgn: 5000,
+  earlyBirdPriceNgn: 3500,
+  lateRegistrationPriceNgn: 7000,
+  lateRegistrationStartsAt: "2026-10-25T00:00:00+01:00",
   /** Course introduction video — free to watch for everyone, enrolled or not. */
   introVideoUrl: "https://www.youtube.com/embed/SD7_tLaYYvU?rel=0&modestbranding=1&playsinline=1",
   stats: [
@@ -23,6 +25,12 @@ export const COURSE = {
     { value: "1 hr", label: "live on Google Meet" },
   ],
 } as const;
+
+export function getCoursePriceNgn(now = new Date()): number {
+  return now.getTime() >= Date.parse(COURSE.lateRegistrationStartsAt)
+    ? COURSE.lateRegistrationPriceNgn
+    : COURSE.earlyBirdPriceNgn;
+}
 
 export const COURSE_DAYS: CourseDay[] = [
   {

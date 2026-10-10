@@ -3,6 +3,7 @@
 import Link from "next/link";
 import useSWR from "swr";
 import { ArrowRight, Award, Globe, PlayCircle, Rocket, Sparkles } from "lucide-react";
+import { useCoursePriceNgn } from "@/lib/nysc/use-course-price";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -13,6 +14,7 @@ const fetcher = (url: string) => fetch(url).then((r) => r.json());
  * state that sends them straight in to watch the recorded lessons.
  */
 export function TrainingBanner() {
+  const coursePriceNgn = useCoursePriceNgn();
   const { data } = useSWR<{ enrolled: boolean; registered: boolean }>("/api/nysc/certificate", fetcher);
   const enrolled = Boolean(data?.enrolled);
   const registered = Boolean(data?.registered);
@@ -52,7 +54,7 @@ export function TrainingBanner() {
             {enrolled
               ? "You're enrolled. The recorded sessions are unlocked — pick up where you left off and work through all 13 modules at your own pace."
               : registered
-                ? "You're registered for the Global Workforce Ready course and it's now live. Complete your enrolment (NGN 5,000) to unlock Lesson 1 and all 13 modules."
+                ? `You're registered for the Global Workforce Ready course. Complete your enrolment (NGN ${coursePriceNgn.toLocaleString("en-NG")}) to unlock Lesson 1 and all 13 modules.`
                 : "A 3-day course to land — and keep — a remote role with a UK, US, Canadian or Australian employer. 13 modules, 7 hours, plus a live practical on Google Meet."}
           </p>
 
